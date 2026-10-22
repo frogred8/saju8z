@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "allowJs": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "scripts/**/*.js",
+    "eslint.config.js",
+    "vitest.config.ts",
+    "bin/**/*.js"
+  ]
+}

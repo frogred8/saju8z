@@ -1,0 +1,4 @@
+export const DEFAULT_TIME_ZONE = "Asia/Seoul";
+export const DEFAULT_SOLAR_TIME_CORRECTION_MINUTES = -30;
+export const SUPPORTED_START_YEAR = 1900;
+export const SUPPORTED_END_YEAR = 2100;

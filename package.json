@@ -1,0 +1,98 @@
+{
+  "name": "saju8z",
+  "version": "1.1.0",
+  "description": "Offline, deterministic Four Pillars calculation for browser and Node.js applications",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/types-cjs/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./core": {
+      "import": {
+        "types": "./dist/types/core.d.ts",
+        "default": "./dist/core.js"
+      },
+      "require": {
+        "types": "./dist/types-cjs/core.d.ts",
+        "default": "./dist/core.cjs"
+      }
+    },
+    "./lunar": {
+      "import": {
+        "types": "./dist/types/lunar.d.ts",
+        "default": "./dist/lunar.js"
+      },
+      "require": {
+        "types": "./dist/types-cjs/lunar.d.ts",
+        "default": "./dist/lunar.cjs"
+      }
+    },
+    "./format": {
+      "import": {
+        "types": "./dist/types/format.d.ts",
+        "default": "./dist/format.js"
+      },
+      "require": {
+        "types": "./dist/types-cjs/format.d.ts",
+        "default": "./dist/format.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin/saju8z.js",
+    "dist/*.js",
+    "dist/*.cjs",
+    "dist/types",
+    "dist/types-cjs",
+    "LICENSE",
+    "README.md",
+    "THIRD-PARTY-LICENSES.txt"
+  ],
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frogred8/saju8z.git"
+  },
+  "bugs": {
+    "url": "https://github.com/frogred8/saju8z/issues"
+  },
+  "homepage": "https://github.com/frogred8/saju8z#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.test.json --noEmit",
+    "prepack": "npm run build",
+    "test:package": "npm run build && node scripts/test-package.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.32.0",
+    "@types/node": "22.13.14",
+    "esbuild": "0.28.2",
+    "eslint": "9.32.0",
+    "korean-lunar-calendar": "0.4.0",
+    "prettier": "3.6.2",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.38.0",
+    "vitest": "3.2.7"
+  },
+  "bin": {
+    "saju8z": "./bin/saju8z.js"
+  }
+}
