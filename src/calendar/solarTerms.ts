@@ -1,4 +1,4 @@
-import { compareLocalDateTime } from "./dateMath.js";
+import { compareLocalDate, compareLocalDateTime } from "./dateMath.js";
 import type { EarthlyBranch, LocalDateTime } from "../domain/types.js";
 
 export type SolarTermKey =
@@ -58,6 +58,18 @@ export function getMonthBranchBySolarTerm(dateTime: LocalDateTime): EarthlyBranc
   let selected: EarthlyBranch = "축";
   for (const candidate of candidates) {
     if (compareLocalDateTime(dateTime, candidate.startsAt) >= 0) selected = candidate.branch;
+  }
+  return selected;
+}
+
+export function getMonthBranchBySolarDate(
+  date: Pick<LocalDateTime, "year" | "month" | "day">
+): EarthlyBranch {
+  const rules = [...SOLAR_TERM_RULES].sort((left, right) => left.month - right.month);
+  let selected: EarthlyBranch = "축";
+  for (const rule of rules) {
+    if (compareLocalDate(date, solarTermDateTime(date.year, rule)) >= 0)
+      selected = rule.monthBranch;
   }
   return selected;
 }

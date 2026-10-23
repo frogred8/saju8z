@@ -1,12 +1,13 @@
 import { addMinutes, isValidDate } from "../calendar/dateMath.js";
 import { lunarToSolar } from "../calendar/lunar.js";
 import { SUPPORTED_START_YEAR, SUPPORTED_END_YEAR } from "../config/constants.js";
+import type { SajuDateWithoutTime } from "../contracts/sajuChart.js";
 import type { LocalDateTime } from "../domain/types.js";
 import { UserInputError } from "../input/errors.js";
 
 const KST_OFFSET_MINUTES = 9 * 60;
 
-function validateSolarDate(value: LocalDateTime): void {
+export function validateSolarDate(value: Pick<LocalDateTime, "year" | "month" | "day">): void {
   if (value.year < SUPPORTED_START_YEAR || value.year > SUPPORTED_END_YEAR) {
     throw new UserInputError("양력 날짜와 GMT+09:00 환산 날짜는 1900~2100년 범위여야 합니다.");
   }
@@ -15,7 +16,19 @@ function validateSolarDate(value: LocalDateTime): void {
   }
 }
 
-export function convertLunarDateTime(local: LocalDateTime, leapMonth: boolean): LocalDateTime {
+export function convertLunarDateTime(local: LocalDateTime, leapMonth: boolean): LocalDateTime;
+export function convertLunarDateTime(
+  local: SajuDateWithoutTime,
+  leapMonth: boolean
+): SajuDateWithoutTime;
+export function convertLunarDateTime(
+  local: LocalDateTime | SajuDateWithoutTime,
+  leapMonth: boolean
+): LocalDateTime | SajuDateWithoutTime;
+export function convertLunarDateTime(
+  local: LocalDateTime | SajuDateWithoutTime,
+  leapMonth: boolean
+): LocalDateTime | SajuDateWithoutTime {
   if (
     local.year < 1900 ||
     local.year > 2050 ||

@@ -7,7 +7,7 @@ import { calculateFourPillars } from "../../src/saju/fourPillars.js";
 import { formatSajuChart } from "../../src/output/formatSajuChart.js";
 import type { SajuChartInput } from "../../src/contracts/sajuChart.js";
 
-const input: SajuChartInput = { date: "2000-02-29", time: "00:10", gmt: "+09:00" };
+const input = { date: "2000-02-29", time: "00:10", gmt: "+09:00" } satisfies SajuChartInput;
 
 describe("독립 만세력 계산", () => {
   it("동일 결과를 텍스트와 JSON으로 직렬화한다", () => {

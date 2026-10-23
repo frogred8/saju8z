@@ -16,6 +16,13 @@ export function isValidDate(year: number, month: number, day: number): boolean {
   return month >= 1 && month <= 12 && day >= 1 && day <= daysInMonth(year, month);
 }
 
+export function compareLocalDate(
+  left: Pick<LocalDateTime, "year" | "month" | "day">,
+  right: Pick<LocalDateTime, "year" | "month" | "day">
+): number {
+  return left.year - right.year || left.month - right.month || left.day - right.day;
+}
+
 export function compareLocalDateTime(left: LocalDateTime, right: LocalDateTime): number {
   const keys: Array<keyof LocalDateTime> = ["year", "month", "day", "hour", "minute"];
   for (const key of keys) {

@@ -1,12 +1,22 @@
 #!/usr/bin/env node
 import process from "node:process";
+import { createInterface } from "node:readline";
 import { calculateSajuChart, formatSajuChart, UserInputError } from "../dist/index.js";
 
-const HELP_TEXT = `사용법: saju8z --date YYYY-MM-DD --time HH:mm [--gmt ±HH:mm] [옵션]
+const HELP_TEXT = `사용법: saju8z
+        saju8z --date YYYY-MM-DD [--time HH:mm] [--gmt ±HH:mm] [옵션]
+        saju8z --dt YYYYMMDD[HHmm] [--gmt ±HH:mm] [옵션]
 
-필수 입력:
+인자 없이 실행하면 날짜와 시각을 차례로 입력받습니다.
+  날짜 예: 1998-03-05 / 시각 예: 11:00 (24시간제, 모르면 비워두고 Enter)
+  대화형 입력은 양력·현재 GMT 시차·text 출력을 사용합니다.
+
+옵션으로 실행할 때 필수 입력 (둘 중 하나):
+  --dt         생년월일 8자리 (YYYYMMDD) 또는 생년월일시 12자리 (YYYYMMDDHHmm)
   --date       생년월일 (YYYY-MM-DD)
-  --time       출생 시각 (HH:mm, 00:00~23:59)
+  --time       출생 시각 (선택, HH:mm, 00:00~23:59). 생략하면 삼주만 계산
+  --date 또는 --dt는 필수이며, --dt와 --date·--time은 혼용할 수 없습니다.
+  시간이 없으면 입력 날짜 기준으로 삼주를 계산하고 GMT 환산·-30분 보정은 생략합니다.
 
 옵션:
   --gmt        고정 GMT 시차 (기본: 실행 환경의 현재 시차, -12:00~+14:00)
@@ -16,6 +26,9 @@ const HELP_TEXT = `사용법: saju8z --date YYYY-MM-DD --time HH:mm [--gmt ±HH:
   --help, -h   도움말
 
 예제:
+  saju8z
+  saju8z --dt 19980305
+  saju8z --dt 199803051100
   saju8z --date 2000-02-29 --time 00:10
   saju8z --date 2000-02-29 --time 00:10 --gmt +09:00
   saju8z --date 2000-02-29 --time 00:10 --gmt=-05:00 --format json
@@ -32,7 +45,35 @@ function getCurrentGmtOffset() {
   return `${sign}${hours}:${remainder}`;
 }
 
-const VALUE_OPTIONS = new Set(["--date", "--time", "--gmt", "--calendar", "--format"]);
+async function readInteractiveArguments() {
+  const reader = createInterface({
+    input: process.stdin,
+    output: process.stderr,
+    terminal: Boolean(process.stdin.isTTY && process.stderr.isTTY),
+    crlfDelay: Infinity
+  });
+  const answers = reader[Symbol.asyncIterator]();
+  /** @param {string} prompt */
+  async function ask(prompt) {
+    process.stderr.write(prompt);
+    const answer = await answers.next();
+    if (answer.done) {
+      throw new UserInputError("입력이 종료되었습니다. --date 또는 --dt를 사용하세요.");
+    }
+    return answer.value.trim();
+  }
+
+  try {
+    process.stderr.write("생년월일과 출생 시각을 입력하세요. 양력·현재 GMT 시차로 계산합니다.\n");
+    const date = await ask("생년월일 (YYYY-MM-DD, 예: 1998-03-05): ");
+    const time = await ask("출생 시각 (HH:mm, 예: 11:00 / 시간을 모르면 비워두고 Enter): ");
+    return time ? ["--date", date, "--time", time] : ["--date", date];
+  } finally {
+    reader.close();
+  }
+}
+
+const VALUE_OPTIONS = new Set(["--dt", "--date", "--time", "--gmt", "--calendar", "--format"]);
 
 /** @param {string[]} args */
 function parseOptions(args) {
@@ -57,12 +98,35 @@ function parseOptions(args) {
   return { values, leapMonth };
 }
 
+/** @param {Map<string, string>} values */
+function resolveDateTime(values) {
+  const dt = values.get("--dt");
+  if (dt !== undefined) {
+    if (values.has("--date") || values.has("--time")) {
+      throw new UserInputError("--dt는 --date 또는 --time과 함께 사용할 수 없습니다.");
+    }
+    if (![8, 12].includes(dt.length) || !/^\d+$/.test(dt)) {
+      throw new UserInputError(
+        "--dt는 YYYYMMDD 형식의 8자리 또는 YYYYMMDDHHmm 형식의 12자리 숫자여야 합니다."
+      );
+    }
+    return {
+      date: `${dt.slice(0, 4)}-${dt.slice(4, 6)}-${dt.slice(6, 8)}`,
+      ...(dt.length === 12 ? { time: `${dt.slice(8, 10)}:${dt.slice(10, 12)}` } : {})
+    };
+  }
+  const date = values.get("--date");
+  const time = values.get("--time");
+  if (!date) {
+    throw new UserInputError("--date 또는 --dt를 입력하세요.");
+  }
+  return { date, ...(time === undefined ? {} : { time }) };
+}
+
 /** @param {string[]} args */
 function parseArguments(args) {
   const { values, leapMonth } = parseOptions(args);
-  const date = values.get("--date");
-  const time = values.get("--time");
-  if (!date || !time) throw new UserInputError("--date, --time은 필수입니다.");
+  const { date, time } = resolveDateTime(values);
   const gmt = values.get("--gmt") ?? getCurrentGmtOffset();
   const calendar = values.get("--calendar") ?? "solar";
   if (calendar !== "solar" && calendar !== "lunar")
@@ -70,7 +134,10 @@ function parseArguments(args) {
   const format = values.get("--format") ?? "text";
   if (format !== "text" && format !== "json" && format !== "prompt")
     throw new UserInputError("출력 형식은 text, json 또는 prompt이어야 합니다.");
-  return { input: { date, time, gmt, calendar, leapMonth }, format };
+  return {
+    input: { date, ...(time === undefined ? {} : { time }), gmt, calendar, leapMonth },
+    format
+  };
 }
 
 try {
@@ -79,9 +146,11 @@ try {
   if (showHelp) {
     process.stdout.write(HELP_TEXT);
   } else {
-    const { input, format } = parseArguments(args);
+    const inputArgs = args.length === 0 ? await readInteractiveArguments() : args;
+    const { input, format } = parseArguments(inputArgs);
     const result = calculateSajuChart(input);
-    process.stdout.write(`${formatSajuChart(result, format)}\n`);
+    const leadingNewline = format === "text" ? "\n" : "";
+    process.stdout.write(`${leadingNewline}${formatSajuChart(result, format)}\n`);
   }
 } catch (error) {
   process.stderr.write(

@@ -1,9 +1,9 @@
-import type { SajuChartInput } from "../contracts/sajuChart.js";
+import type { SajuChartInput, SajuDateWithoutTime } from "../contracts/sajuChart.js";
 import type { LocalDateTime } from "../domain/types.js";
 import { UserInputError } from "./errors.js";
 
 interface ParsedSajuChartInput {
-  localDateTime: LocalDateTime;
+  localDateTime: LocalDateTime | SajuDateWithoutTime;
   offsetMinutes: number;
   calendar: "solar" | "lunar";
   leapMonth: boolean;
@@ -41,7 +41,7 @@ export function parseSajuChartInput(input: SajuChartInput): ParsedSajuChartInput
     throw new UserInputError("생년월일시와 GMT를 입력하세요.");
   }
   const date = parseDate(input.date);
-  const time = parseTime(input.time);
+  const time = input.time === undefined ? { hour: null, minute: null } : parseTime(input.time);
   const offsetMinutes = parseGmtOffset(input.gmt);
   const calendar = input.calendar === undefined ? "solar" : input.calendar;
   if (calendar !== "solar" && calendar !== "lunar") {

@@ -31,7 +31,9 @@ export function formatDayStem(stem: HeavenlyStem): string {
 }
 
 export function describePillar(result: SajuChartResult, position: PillarPosition) {
-  const { stem, branch } = result.fourPillars[position];
+  const value = result.fourPillars[position];
+  if (value === null) return null;
+  const { stem, branch } = value;
   const stemHanja = STEM_HANJA[stem].hanja;
   const branchHanja = BRANCH_HANJA[branch].hanja;
   return {

@@ -18,6 +18,10 @@ const IN_MONTH_START_STEM_BY_YEAR_STEM: Readonly<Record<HeavenlyStem, number>> =
 
 export function calculateMonthPillar(dateTime: LocalDateTime, yearStem: HeavenlyStem): Pillar {
   const branch = getMonthBranchBySolarTerm(dateTime);
+  return monthPillarFromBranch(branch, yearStem);
+}
+
+export function monthPillarFromBranch(branch: EarthlyBranch, yearStem: HeavenlyStem): Pillar {
   const offsetFromIn = positiveModulo(branchIndex(branch) - branchIndex("인"), 12);
   const stem = stemAt(IN_MONTH_START_STEM_BY_YEAR_STEM[yearStem] + offsetFromIn);
   return { stem, branch };
