@@ -79,7 +79,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "prepack": "npm run build",
-    "test:package": "npm run build && node scripts/test-package.js"
+    "test:package": "npm run build && node scripts/test-package.js",
+    "pack:skill": "node scripts/pack-skill.js"
   },
   "devDependencies": {
     "@eslint/js": "9.32.0",
