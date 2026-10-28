@@ -17,7 +17,7 @@ export function formatSajuText(result: SajuChartResult): string {
     ...(result.normalizedDateTime.hour === null
       ? [
           `양력 날짜: ${formatDateTime(result.normalizedDateTime)}`,
-          "출생 시각: 미상 (삼주만 제공하며 시주는 추정하거나 해석하지 않습니다.)",
+          "출생 시각: 미상 (시간없는 사주만 제공하며 시주는 추정하거나 해석하지 않습니다.)",
           "시간 미상으로 GMT 환산과 -30분 보정은 적용하지 않았습니다."
         ]
       : [

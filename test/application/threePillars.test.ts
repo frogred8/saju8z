@@ -4,7 +4,7 @@ import type { SajuChartInput } from "../../src/index.js";
 
 const input = { date: "1998-03-05", gmt: "+09:00" };
 
-describe("시간 미상 삼주", () => {
+describe("시간 미상 시간없는 사주", () => {
   it("입력 날짜를 보존하고 미상 시각과 시주·시주 십성을 null로 반환한다", () => {
     const result = calculateSajuChart(input);
     expect(result).toEqual({
@@ -30,12 +30,12 @@ describe("시간 미상 삼주", () => {
     expect(result.normalizedDateTime).not.toBe(result.calculationDateTime);
   });
 
-  it("시간을 undefined로 명시해도 삼주를 반환한다", () => {
+  it("시간을 undefined로 명시해도 시간없는 사주를 반환한다", () => {
     expect(calculateSajuChart({ ...input, time: undefined })).toEqual(calculateSajuChart(input));
   });
 
   it.each(["-12:00", "-05:00", "+00:00", "+05:45", "+14:00"])(
-    "GMT %s에서도 날짜와 삼주를 유지한다",
+    "GMT %s에서도 날짜와 시간없는 사주를 유지한다",
     (gmt) => {
       expect(calculateSajuChart({ ...input, gmt })).toEqual(calculateSajuChart(input));
     }
@@ -48,7 +48,7 @@ describe("시간 미상 삼주", () => {
     expect(midnight.fourPillars.day).toEqual({ stem: "병", branch: "진" });
   });
 
-  it("삼주 텍스트와 프롬프트에 추정 시각과 시주를 넣지 않는다", () => {
+  it("시간없는 사주 텍스트와 프롬프트에 추정 시각과 시주를 넣지 않는다", () => {
     const result = calculateSajuChart(input);
     const text = formatSajuChart(result);
     expect(text).toContain("양력 날짜: 1998-03-05");

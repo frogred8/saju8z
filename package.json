@@ -1,6 +1,6 @@
 {
   "name": "saju8z",
-  "version": "1.1.0",
+  "version": "1.2.1",
   "description": "Offline, deterministic Four Pillars calculation for browser and Node.js applications",
   "type": "module",
   "main": "./dist/index.cjs",
